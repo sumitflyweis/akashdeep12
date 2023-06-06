@@ -131,37 +131,37 @@ exports.createOrder = async (req, res) => {
 
 
 
-// exports.processOrderByorderId = async (req, res) => {
-//   try {
-//     const orderID = req.params.id;
+exports.processOrderByorderId = async (req, res) => {
+  try {
+    const orderID = req.params.id;
 
-//     const clientId = "TEST370281a1d99b47aa3a41930df0182073";
-//     const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
+    const clientId = "TEST370281a1d99b47aa3a41930df0182073";
+    const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
 
-//     const headers = {
-//       "x-api-version": "2023-03-01",
-//       "Content-Type": "application/json",
-//       "X-Client-ID": clientId,
-//       "X-Client-Secret": clientSecret,
-//     };
+    const headers = {
+      "x-api-version": "2023-03-01",
+      "Content-Type": "application/json",
+      "X-Client-ID": clientId,
+      "X-Client-Secret": clientSecret,
+    };
 
-//     console.log(headers);
-//     const response = await axios.post(
-//       `https://sandbox.cashfree.com/pg/lrs/orders/${orderID}/process`,
-//       // "https://sandbox.cashfree.com/pg/lrs/orders",
-//       // newBeneficiary,
-//       {
-//         headers: headers,
-//       }
-//     );
+    console.log(headers);
+    const response = await axios.post(
+      `https://sandbox.cashfree.com/pg/lrs/orders/${orderID}/process`,
+      // "https://sandbox.cashfree.com/pg/lrs/orders",
+      // newBeneficiary,
+      {
+        headers: headers,
+      }
+    );
 
-//     console.log(response);
-//     const createdBeneficiary = response.data;
-//     console.log(createdBeneficiary);
+    //console.log(response);
+    const createdBeneficiary = response.data;
+    console.log(createdBeneficiary);
 
-//     res.status(201).json(createdBeneficiary);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
+    res.status(201).json(createdBeneficiary);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

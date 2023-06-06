@@ -38,6 +38,7 @@ const FxR = require("./src/route/FxRate")
 const web = require("./src/route/webhooks")
 const orderr = require("./src/route/order")
 const upload = require("./src/route/uploadDocuments")
+const typeOfCurr  = require("./src/route/typeOfCurrency")
 
 require("dotenv").config();
 
@@ -88,6 +89,8 @@ app.use("/FxRat",FxR)
 app.use("/web",web)
 app.use("/orderr",orderr)
 app.use("/upload",upload)
+app.use("/typeOfCurr",typeOfCurr)
+
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
