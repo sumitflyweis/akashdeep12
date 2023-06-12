@@ -39,6 +39,7 @@ const web = require("./src/route/webhooks")
 const orderr = require("./src/route/order")
 const upload = require("./src/route/uploadDocuments")
 const typeOfCurr  = require("./src/route/typeOfCurrency")
+const bookthisorderr = require("./src/route/bookthisorder1")
 
 require("dotenv").config();
 
@@ -90,6 +91,7 @@ app.use("/web",web)
 app.use("/orderr",orderr)
 app.use("/upload",upload)
 app.use("/typeOfCurr",typeOfCurr)
+app.use("/bookthisorderr1",bookthisorderr)
 
 
 app.listen(PORT, () => {
