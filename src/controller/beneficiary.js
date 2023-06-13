@@ -74,9 +74,6 @@ exports.createBeneficiary = async (req, res) => {
       postal_code
     });
 
-    newBeneficiary.save()
-
-  
     
         const clientId = "TEST370281a1d99b47aa3a41930df0182073";
         const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
@@ -94,11 +91,11 @@ exports.createBeneficiary = async (req, res) => {
       headers: headers 
     });
 
-    
-    console.log(response)
+        console.log(response)
     // Extract the created beneficiary from the response
     const createdBeneficiary = response.data;
 
+    newBeneficiary.save()
     res.status(201).json(createdBeneficiary);
   } catch (error) {
     console.log(error)
