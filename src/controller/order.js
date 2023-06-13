@@ -64,6 +64,7 @@ exports.createOrder = async (req, res) => {
       customer_relationship,
       remarks,
       customer_declaration,
+      status,
     } = req.body;
 
     const newBeneficiary = new orderr({
@@ -95,7 +96,10 @@ exports.createOrder = async (req, res) => {
       customer_relationship,
       remarks,
       customer_declaration,
+      status
     });
+
+    newBeneficiary.save()
 
     const clientId = "TEST370281a1d99b47aa3a41930df0182073";
     const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
@@ -165,3 +169,42 @@ exports.processOrderByorderId = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+exports.updateorder = async (req, res) => {
+
+  try {
+    const menu = await orderr.findOneAndUpdate(req.params.id, req.body, {new: true});
+    if (!menu) {
+      return res.status(404).send('Menu not found');
+    }
+    res.json(menu);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+
+exports.getallorder = async (req, res) => {
+  try {
+    const menu = await orderr.find();
+    if (!menu) {
+      return res.status(404).send('Menu not found');
+    }
+    res.json({msg:menu});
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+exports.getallorderById = async (req, res) => {
+  try {
+    const menu = await orderr.findOne({order_id:req.params.id});
+    if (!menu) {
+      return res.status(404).send('Menu not found');
+    }
+    res.json({msg:menu});
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}

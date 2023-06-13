@@ -73,6 +73,10 @@ const orderSchema = mongoose.Schema({
   customer_declaration: {
     type: String,
   },
+  status:{
+    type:String,
+    default:""
+  }
 });
 
 module.exports = mongoose.model("order", orderSchema);

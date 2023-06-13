@@ -5,7 +5,11 @@ const menuController = require("../controller/order");
 // router.get('/menus', menuController.getMenus);
 router.post('/', menuController.createOrder);
 router.post('/:id', menuController.processOrderByorderId);
-// router.put('/menus/:id', menuController.updateMenu);
+router.put('/:id', menuController.updateorder);
+
+router.get('/', menuController.getallorder)
+
+router.get('/:id', menuController.getallorderById)
 // router.delete('/menus/:id', menuController.deleteMenu);
 
 module.exports = router;

@@ -49,6 +49,7 @@ const remitter1Schema = mongoose.Schema({
   bank_code: {
     type: String,
   },
+ 
 });
 
 const remitterModel = mongoose.model("remitter1", remitter1Schema);

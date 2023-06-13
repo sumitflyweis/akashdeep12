@@ -74,6 +74,8 @@ exports.createBeneficiary = async (req, res) => {
       postal_code
     });
 
+    newBeneficiary.save()
+
   
     
         const clientId = "TEST370281a1d99b47aa3a41930df0182073";
