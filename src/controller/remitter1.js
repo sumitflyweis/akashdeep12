@@ -71,8 +71,7 @@ exports.createRemitter = async (req, res) => {
       bank_code,
     });
 
-    newBeneficiary.save()
-
+    
     const clientId = "TEST370281a1d99b47aa3a41930df0182073";
     const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
 
@@ -95,7 +94,7 @@ exports.createRemitter = async (req, res) => {
    // console.log(response);
     const createdBeneficiary = response.data;
     console.log(createdBeneficiary)
-
+    newBeneficiary.save()
     res.status(201).json(createdBeneficiary);
   } catch (error) {
     console.log(error);
