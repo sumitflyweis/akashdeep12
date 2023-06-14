@@ -40,6 +40,7 @@ const orderr = require("./src/route/order")
 const upload = require("./src/route/uploadDocuments")
 const typeOfCurr  = require("./src/route/typeOfCurrency")
 const bookthisorderr = require("./src/route/bookthisorder1")
+const purposee = require("./src/route/purpose")
 
 require("dotenv").config();
 
@@ -92,6 +93,7 @@ app.use("/orderr",orderr)
 app.use("/upload",upload)
 app.use("/typeOfCurr",typeOfCurr)
 app.use("/bookthisorderr1",bookthisorderr)
+app.use("/purposee",purposee)
 
 
 app.listen(PORT, () => {
