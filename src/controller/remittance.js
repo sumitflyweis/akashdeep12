@@ -86,7 +86,7 @@ const axios = require("axios")
 exports.createRemittance = async (req, res) => {
   try {
     // Get data from request body
-    const { city, optionBestDescribeYou, name, mobile, email, monthlyImport_Export } = req.body;
+    const { city, optionBestDescribeYou, name, mobile, email, monthlyImport_Export, purpose } = req.body;
 
     // Create a new remittance document
     const remittance = new Remittance({
@@ -95,7 +95,8 @@ exports.createRemittance = async (req, res) => {
       name,
       mobile,
       email,
-      monthlyImport_Export
+      monthlyImport_Export,
+      purpose
     });
 
     // Save the remittance document to the database

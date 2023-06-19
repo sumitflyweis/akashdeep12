@@ -22,6 +22,10 @@ const remittanceSchema = mongoose.Schema({
  },
  monthlyImport_Export:{
     type:Number
+ },
+ purpose:{
+  type:String,
+  default:""
  }
  });
 
