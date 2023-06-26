@@ -208,3 +208,15 @@ exports.getallorderById = async (req, res) => {
     res.status(500).send(err);
   }
 }
+
+exports.getallorderByremitter_id = async (req, res) => {
+  try {
+    const menu = await orderr.find({remitter_id:req.params.id});
+    if (!menu) {
+      return res.status(404).send('Menu not found');
+    }
+    res.json({msg:menu});
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}

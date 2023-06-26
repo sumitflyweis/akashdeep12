@@ -10,6 +10,8 @@ router.put('/:id', menuController.updateorder);
 router.get('/', menuController.getallorder)
 
 router.get('/:id', menuController.getallorderById)
+
+router.get('/user/:id', menuController.getallorderByremitter_id)
 // router.delete('/menus/:id', menuController.deleteMenu);
 
 module.exports = router;
