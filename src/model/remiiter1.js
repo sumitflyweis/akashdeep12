@@ -49,6 +49,10 @@ const remitter1Schema = mongoose.Schema({
   bank_code: {
     type: String,
   },
+  userid:{
+    type:objectId,
+    ref:"remitter"
+  }
  
 });
 

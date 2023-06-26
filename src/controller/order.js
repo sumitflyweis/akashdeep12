@@ -1,5 +1,7 @@
 const orderr = require("../model/order");
 const axios = require("axios");
+const remitt = require("../model/remiiter1");
+const userModel = require("../model/remitter");
 
 exports.convertCurrencyccc = async (req, res) => {
   const {
@@ -65,7 +67,11 @@ exports.createOrder = async (req, res) => {
       remarks,
       customer_declaration,
       status,
+      userid
     } = req.body;
+
+    const purposes = await remitt.findOne({remitter_id:remitter_id});
+    
 
     const newBeneficiary = new orderr({
       order_id,
@@ -96,7 +102,9 @@ exports.createOrder = async (req, res) => {
       customer_relationship,
       remarks,
       customer_declaration,
-      status
+      status,
+      remitterid : purposes._id,
+      userid
     });
 
     newBeneficiary.save()
@@ -130,9 +138,6 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
-
-
 
 
 exports.processOrderByorderId = async (req, res) => {
@@ -214,6 +219,19 @@ exports.getallorderByremitter_id = async (req, res) => {
     const menu = await orderr.find({remitter_id:req.params.id});
     if (!menu) {
       return res.status(404).send('Menu not found');
+    }
+    res.json({msg:menu});
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+
+exports.getallorderbyuserid = async (req, res) => {
+  try {
+    const menu = await orderr.find({userid:req.params.user}).populate("userid remitterid")
+    if (!menu) {
+      return res.status(404).send('order not found');
     }
     res.json({msg:menu});
   } catch (err) {

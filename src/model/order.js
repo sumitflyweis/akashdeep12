@@ -76,7 +76,16 @@ const orderSchema = mongoose.Schema({
   status:{
     type:String,
     default:""
+  },
+  userid:{
+    type:objectId,
+    ref:"remitter"
+  },
+  remitterid:{
+    type:objectId,
+    ref:"remitter1"
   }
+  
 });
 
 module.exports = mongoose.model("order", orderSchema);

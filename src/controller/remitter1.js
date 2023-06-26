@@ -1,5 +1,6 @@
 const remitt = require("../model/remiiter1");
 const axios = require("axios");
+const userModel = require("../model/remitter");
 
 exports.convertCurrencyccc = async (req, res) => {
   const {
@@ -51,6 +52,7 @@ exports.createRemitter = async (req, res) => {
       education_loan,
       nationality,
       bank_code,
+      userid,
     } = req.body;
 
     const newBeneficiary = new remitt({
@@ -69,9 +71,10 @@ exports.createRemitter = async (req, res) => {
       education_loan,
       nationality,
       bank_code,
+      userid,
     });
+    console.log(newBeneficiary);
 
-    
     const clientId = "TEST370281a1d99b47aa3a41930df0182073";
     const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
 
@@ -91,11 +94,11 @@ exports.createRemitter = async (req, res) => {
       }
     );
 
-   // console.log(response);
+    // console.log(response);
     const createdBeneficiary = response.data;
-    console.log(createdBeneficiary)
-    newBeneficiary.save()
-    res.status(201).json(createdBeneficiary);
+    console.log(createdBeneficiary);
+   let dataSave= await newBeneficiary.save();
+    res.status(201).json(dataSave);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
