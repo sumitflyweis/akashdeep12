@@ -150,3 +150,28 @@ exports.createuploadDocuments = async (req, res) => {
 //     return res.status(400).json({ msg: error.message, name: error.name });
 //   }
 // };
+
+
+
+exports.getAllDoc = async (req, res) => {
+  try {
+    const currencies = await Doc.find();
+    res.status(200).json({ msg:currencies });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+exports.getDocById = async (req, res) => {
+  try {
+    const currency = await Doc.findById(req.params.id);
+    if (!currency) {
+      return res.status(404).json({ message: 'doc not found.' });
+    }
+    res.status(200).json({ msg:currency });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};

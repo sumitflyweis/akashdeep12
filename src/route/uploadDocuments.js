@@ -6,10 +6,10 @@ const travelInsuranceController = require('../controller/uploadDocuments'); // R
 router.post('/:id', travelInsuranceController.createuploadDocuments);
 
 // Get all travel insurances
-// router.get('/', travelInsuranceController.getAllTravelInsurances);
+router.get('/', travelInsuranceController.getAllDoc);
 
 // // Update a travel insurance by ID
-// router.put('/:id', travelInsuranceController.updateTravelInsuranceById);
+router.get('/:id', travelInsuranceController.getDocById);
 
 // // Delete a travel insurance by ID
 // router.delete('/:id', travelInsuranceController.deleteTravelInsuranceById);
