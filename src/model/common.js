@@ -93,4 +93,4 @@ const orderSchema = mongoose.Schema({
   
 });
 
-module.exports = mongoose.model("order", orderSchema);
+module.exports = mongoose.model("orderOtherThanEducation", orderSchema);

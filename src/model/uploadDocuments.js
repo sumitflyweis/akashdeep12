@@ -18,8 +18,8 @@ const uploaddocumentsSchema = mongoose.Schema({
                 }
             }
         ],
-        missing_documents: [],
-        overridden_documents: []
+        // missing_documents: [],
+        // overridden_documents: []
     
  });
 

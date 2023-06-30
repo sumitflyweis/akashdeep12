@@ -28,15 +28,104 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 
 // Handle POST request to upload image
+// exports.createuploadDocuments = async (req, res) => {
+//   try {
+//     upload.single("image")(req, res, async (err) => {
+//       if (err) {
+//         console.log(err);
+//         return res.status(400).json({ msg: err.message });
+//       }
+
+//       const fileUrl = req.file.path;
+
+//       const {
+//         bulk_doc_id,
+//         missing_documents,
+//         overridden_documents,
+//         file_name,
+//         document_type,
+//       } = req.body;
+
+//       // console.log(req.params.id);
+//       // console.log(req.file.path);
+//       const order_id = req.params.id;
+//       // const file = await axios.get(req.file.path);
+
+//       const newBeneficiary = new Doc({
+//         bulk_doc_id,
+//         missing_documents: [
+//           {
+//             file_name: fileUrl || file_name || file,
+//             document_type,
+//           },
+//         ],
+//         uploaded_documents: [
+//           {
+//             // fileUrl,
+//             document_type,
+//           },
+//         ],
+//         overridden_documents: [
+//           {
+//             // fileUrl,
+//             document_type,
+//           },
+//         ],
+//       });
+
+//       console.log(newBeneficiary);
+//       const bene = await newBeneficiary.save();
+
+//       const user = await orderr.findOneAndUpdate(order_id,{ missing_documents: fileUrl}, {
+//         new: true,
+//         runValidators: true,
+//       });
+//       if (!user) {
+//         return res.status(404).send("User not found");
+//       }
+//       // res.send(user);
+//       await user.save();
+//       const clientId = "TEST370281a1d99b47aa3a41930df0182073";
+//       const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
+
+//       const headers = {
+//         "x-api-version": "2023-03-01",
+//         "Content-Type": "application/pdf",
+//         "X-Client-ID": clientId,
+//         "X-Client-Secret": clientSecret,
+//       };
+
+//       //console.log(headers);
+//       const response = await axios.post(
+//         `https://sandbox.cashfree.com/pg/lrs/orders/${order_id}/documents/upload`,
+//         { file },
+//         {
+//           headers: headers,
+//         }
+//       );
+
+//       console.log(response);
+//       const createdBeneficiary = response.data;
+//       console.log(createdBeneficiary);
+
+//       res.status(201).send({user:user,bene:bene});
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(400).json({ msg: error.message, name: error.name });
+//   }
+// };
+
+
 exports.createuploadDocuments = async (req, res) => {
   try {
-    upload.single("image")(req, res, async (err) => {
+    upload.array("image", 5)(req, res, async (err) => {
       if (err) {
         console.log(err);
         return res.status(400).json({ msg: err.message });
       }
 
-      const fileUrl = req.file.path;
+      const fileUrls = req.files.map((file) => file.path);
 
       const {
         bulk_doc_id,
@@ -46,111 +135,70 @@ exports.createuploadDocuments = async (req, res) => {
         document_type,
       } = req.body;
 
-      // console.log(req.params.id);
-      // console.log(req.file.path);
       const order_id = req.params.id;
-      // const file = await axios.get(req.file.path);
 
       const newBeneficiary = new Doc({
         bulk_doc_id,
-        missing_documents: [
-          {
-            file_name: fileUrl || file_name || file,
-            document_type,
-          },
-        ],
-        uploaded_documents: [
-          {
-            // fileUrl,
-            document_type,
-          },
-        ],
-        overridden_documents: [
-          {
-            // fileUrl,
-            document_type,
-          },
-        ],
+        missing_documents: fileUrls.map((fileUrl) => ({
+          file_name: fileUrl || file_name || file,
+          document_type,
+        })),
+        uploaded_documents: fileUrls.map((fileUrl) => ({
+          document_type,
+        })),
+        overridden_documents: fileUrls.map((fileUrl) => ({
+          document_type,
+        })),
       });
 
       console.log(newBeneficiary);
       const bene = await newBeneficiary.save();
 
-      const user = await orderr.findOneAndUpdate(order_id,{ missing_documents: fileUrl}, {
-        new: true,
-        runValidators: true,
-      });
+      const user = await orderr.findOneAndUpdate(
+        order_id,
+        { missing_documents: fileUrls },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
       if (!user) {
         return res.status(404).send("User not found");
       }
-      // res.send(user);
       await user.save();
-      // const clientId = "TEST370281a1d99b47aa3a41930df0182073";
-      // const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
 
-      // const headers = {
-      //   "x-api-version": "2023-03-01",
-      //   "Content-Type": "application/pdf",
-      //   "X-Client-ID": clientId,
-      //   "X-Client-Secret": clientSecret,
-      // };
+      const clientId = "TEST370281a1d99b47aa3a41930df0182073";
+      const clientSecret = "TEST95fd8451c7e275d78ddb4c769b20c92bdd1f3448";
 
-      // //console.log(headers);
-      // const response = await axios.post(
-      //   `https://sandbox.cashfree.com/pg/lrs/orders/${order_id}/documents/upload`,
-      //   { file },
-      //   {
-      //     headers: headers,
-      //   }
-      // );
+      const headers = {
+        "x-api-version": "2023-03-01",
+        "Content-Type": "application/pdf",
+        "X-Client-ID": clientId,
+        "X-Client-Secret": clientSecret,
+      };
 
-      // console.log(response);
-      // const createdBeneficiary = response.data;
-      // console.log(createdBeneficiary);
+      const responsePromises = fileUrls.map((fileUrl) =>
+        axios.post(
+          `https://sandbox.cashfree.com/pg/lrs/orders/${order_id}/documents/upload`,
+          { file: fileUrl },
+          {
+            headers: headers,
+          }
+        )
+      );
 
-      res.status(201).send({user:user,bene:bene});
+      const responseArray = await Promise.all(responsePromises);
+      const createdBeneficiaries = responseArray.map((response) => response.data);
+
+      console.log(createdBeneficiaries);
+
+      res.status(201).send({ user: user, bene: bene });
     });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ msg: error.message, name: error.name });
   }
 };
-
-// exports.createuploadDocuments = async (req, res) => {
-//   try {
-//     const { bulk_doc_id, document_type, document_type1, document_type2 } =
-//       req.body;
-
-//     const newBeneficiary = new Doc({
-//       bulk_doc_id,
-//       uploaded_documents: [
-//         {
-//           document_type,
-//         },
-//       ],
-//       missing_documents: [
-//         {
-//           document_type1,
-//         },
-//       ],
-//       overridden_documents: [
-//         {
-//           document_type2,
-//         },
-//       ],
-//     });
-//     console.log(newBeneficiary);
-//     await Doc.save();
-
-//     res.status(201).json(createdBeneficiary);
-
-//     // Make necessary API requests using Cloudinary uploader or any other external API calls
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(400).json({ msg: error.message, name: error.name });
-//   }
-// };
-
 
 
 exports.getAllDoc = async (req, res) => {
