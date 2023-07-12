@@ -1,30 +1,119 @@
 const mongoose = require("mongoose");
-
+const objectId = mongoose.Types.ObjectId;
 const foriegncurrencySchema = mongoose.Schema({
-  buy_sell: {
-    type: String,
-  },
   selectCity: {
-    type: String,
+    type: objectId,
+    ref: "city",
   },
   currencyYouHave: {
-    type: String,
+    type: objectId,
+    ref: "currency",
   },
   currencyYouWant: {
-    type: String,
+    type: objectId,
+    ref: "currency",
   },
   forexcard: {
     type: String,
   },
-  forexNumber: {
+  forexAmount: {
     type: Number,
   },
-  inrAmount: {
+  ConvertedAmount: {
     type: Number,
   },
   total: {
     type: Number,
   },
+
+  /////////////////////////////////////////////
+  phone:{
+    type:String,
+    default:""
+  },
+  otp:{
+    type:String,
+    default:""
+  },
+  email:{
+    type:String,
+    default:""
+  },
+  /////////////////////////////////////////////
+  name:{
+    type:String,
+    default:""
+  },
+  mobile:{
+    type:String,
+    default:""
+  },
+  panCard:{
+    type:String,
+    default:""
+  },
+  uploadPanCard:{
+    type:String,
+    default:""
+  },
+  passport:{
+    type:String,
+    default:""
+  },
+  uploadPassport:{
+    type:String,
+    default:""
+  },
+  ///////////////////////////////////////////////
+  beneficiaryName:{
+    type:String,
+    default:""
+  },
+  transactionAmount:{
+    type:String,
+    default:""
+  },
+  AmountInWords:{
+    type:String,
+    default:""
+  },
+  beneficiaryAccountNumber:{
+    type:String,
+    default:""
+  },
+  ifscCode:{
+    type:String,
+    default:""
+  },
+  bankNameAndAddress:{
+    type:String,
+    default:""
+  },
+  referenceNo_OrderID:{
+    type:String,
+    default:""
+  },
+  ///////////////////////////////////////////////////////
+  challenCreatedOn:{
+    type:String,
+    default:""
+  },
+  CA_Number:{
+    type:String,
+    default:""
+  },
+  emailAddress:{
+    type:String,
+    default:""
+  },
+  customerID:{
+    type:String,
+    default:""
+  },
+  mobile:{
+    type:String,
+    default:""
+  }
 });
 
 const foriegncurrencyModel = mongoose.model(
@@ -32,4 +121,4 @@ const foriegncurrencyModel = mongoose.model(
   foriegncurrencySchema
 );
 
-module.exports = foriegncurrencyModel;
+module.exports = foriegncurrencyModel

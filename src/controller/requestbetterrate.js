@@ -58,7 +58,7 @@ exports.convertRate = async (req, res) => {
 
     console.log(response)
     // Extract the converted INR amount from the API response
-    const inrAmount = response.data.response.value;
+    const inrAmount = response.data;
 
     res.json({ inrAmount });
   } catch (error) {
