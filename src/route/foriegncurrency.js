@@ -2,22 +2,34 @@ const express = require('express');
 const router = express.Router();
 const currencyController = require('../controller/foriegncurrency');
 
+const multer = require("multer")
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({ cloud_name: "dbrvq9uxa", api_key: "567113285751718", api_secret: "rjTsz9ksqzlDtsrlOPcTs_-QtW4", });
+const storage = new CloudinaryStorage({
+        cloudinary: cloudinary, params: { folder: "images/image", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"], },
+})
+const upload = multer({storage: storage})
+var cpUpload = upload.fields([{name: 'pan', maxCount: 1},{ name: 'passportt', maxCount: 1 }])
+
 router.post('/convert', currencyController.convertCurrency);
 
-// Create a new resource
+
 router.post('/', currencyController.create);
 
-// Get all resources
+
 router.get('/', currencyController.findAll);
 
-// Get a specific resource by ID
+
 router.get('/:id', currencyController.findOne);
 
-// Update a specific resource by ID
-router.put('/:id', currencyController.update);
 
-// Delete a specific resource by ID
+router.put('/:id', cpUpload,currencyController.update);
+
+router.put('/updateAccountDetails/:id', currencyController.updateAccountDetails);
+
+
 router.delete('/:id', currencyController.delete);
 
-module.exports = router;
+module.exports = router
 

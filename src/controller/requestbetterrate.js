@@ -56,9 +56,9 @@ exports.convertRate = async (req, res) => {
     // Make a request to an external currency conversion API
     const response = await axios.get(`https://api.currencyscoop.com/v1/convert?api_key=4b9a3c48ebe3250b32d97a7031359674&from=${currency}&to=INR&amount=${forexAmount}`);
 
-    console.log(response)
+    console.log(response.data.value)
     // Extract the converted INR amount from the API response
-    const inrAmount = response.data;
+    const inrAmount = response.data.value;
 
     res.json({ inrAmount });
   } catch (error) {

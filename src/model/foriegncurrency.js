@@ -5,13 +5,22 @@ const foriegncurrencySchema = mongoose.Schema({
     type: objectId,
     ref: "city",
   },
+  city:{
+    type:String
+  },
   currencyYouHave: {
     type: objectId,
     ref: "currency",
   },
+  currencyHave:{
+    type:String
+  },
   currencyYouWant: {
     type: objectId,
     ref: "currency",
+  },
+  currencyWant:{
+    type:String
   },
   forexcard: {
     type: String,
