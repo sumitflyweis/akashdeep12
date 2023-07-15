@@ -15,7 +15,12 @@ exports.createDestination = async (req, res) => {
 exports.getAllDestinations = async (req, res) => {
   try {
     const destinations = await Destination.find();
-    res.json(destinations);
+    if (!destinations) {
+      return res.status(404).json({ message: 'destination not found' });
+    }
+    res
+    .status(200)
+    .json({ message: "success", data: destinations })
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -29,7 +34,12 @@ exports.updateDestinationById = async (req, res) => {
       req.body,
       { new: true }
     );
-    res.json(updatedDestination);
+    if (!updatedDestination) {
+      return res.status(404).json({ message: 'destination not found' });
+    }
+    res
+    .status(200)
+    .json({ message: "success", data: updatedDestination })
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

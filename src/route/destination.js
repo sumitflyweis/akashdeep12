@@ -9,10 +9,10 @@ router.post('/', controller.createDestination);
 router.get('/', controller.getAllDestinations);
 
 // Get an item by ID
-router.get('/:id', controller.updateDestinationById);
+router.put('/:id', controller.updateDestinationById);
 
 // Update an item by ID
-router.put('/:id', controller.deleteDestinationById);
+router.delete('/:id', controller.deleteDestinationById);
 
 
 module.exports = router;

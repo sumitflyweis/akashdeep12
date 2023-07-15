@@ -2,17 +2,51 @@ const mongoose = require("mongoose");
 const objectId = mongoose.Types.ObjectId;
 const travelSchema = mongoose.Schema({
   destination : {
-    type: String,
+    type: objectId,
+    ref:"destination"
   },
+  destinationName:{
+    type:String
+  },  
   ageOfTraveller: {
-    type:Number
+    type:Array
   },
   startDate:{
-    type:String
+    type:String,
+    default:""
   },
   endDate:{
-    type:String
+    type:String,
+    default:""
+  },
+  panCard:{
+    type:Array
+  },
+  uploadPanCard:{
+    type:Array
+  },
+  ticketNumber:{
+    type:Array,
+    },
+  uploadTicket:{
+    type:Array
+  },
+  passport:{
+    type:Array
+  },
+  uploadPassport:{
+    type:Array
+  },
+  visa:{
+    type:Array
+  },
+  uploadVisa:{
+    type:Array
+  },
+  insuranceAmtFull:{
+    type:String,
+    default:""
   }
- });
+ })
 
 module.exports = mongoose.model("travelInsurance", travelSchema);
