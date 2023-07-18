@@ -99,10 +99,9 @@ const prepaidtravelSchema = mongoose.Schema({
     enum:["buy","reload","unload"],
     default:"buy"
   }
-
-});
+})
 const prepaidtravelcardModel = mongoose.model(
   "prepaidtravelcard",
   prepaidtravelSchema
-);
+)
 module.exports = prepaidtravelcardModel;

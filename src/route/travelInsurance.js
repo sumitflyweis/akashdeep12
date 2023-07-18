@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const travelInsuranceController = require('../controller/travelInsurance'); 
 
-
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
@@ -12,9 +11,7 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
-
 router.post('/', travelInsuranceController.createTravelInsurance);
-
 
 router.get('/', travelInsuranceController.getAllTravelInsurances);
 

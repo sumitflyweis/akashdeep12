@@ -18,9 +18,7 @@ const uploaddocumentsSchema = mongoose.Schema({
                 }
             }
         ],
-        // missing_documents: [],
-        // overridden_documents: []
-    
- });
+      
+ })
 
 module.exports = mongoose.model("uploaddocument", uploaddocumentsSchema);

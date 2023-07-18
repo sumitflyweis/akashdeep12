@@ -44,7 +44,9 @@ const typeOfCurr  = require("./src/route/typeOfCurrency")
 const foriegnDemand = require("./src/route/foriegnDemandDraft")
 const purposee = require("./src/route/purpose")
 const common  = require("./src/route/common")
-
+const addhar  = require("./src/route/addharverification")
+const pan = require("./src/route/pancard")
+const wireTransferr = require("./src/route/wireTranfser")
 
 require("dotenv").config();
 
@@ -66,7 +68,7 @@ app.get("/home",(req, res) => {
   res.status(200).send({msg:"Working App"});
 });
 
-app.use("/user", remitter);
+app.use("/user", remitter)
 app.use("/enquiry",enquiry)
 app.use("/menu",menu)
 app.use("/banner",banner)
@@ -101,8 +103,9 @@ app.use("/typeOfCurr",typeOfCurr)
 app.use("/foriegnDemand",foriegnDemand)
 app.use("/purposee",purposee)
 app.use("/remi/bene/order",common)
-
-
+app.use("/aadhar",addhar)
+app.use("/pann",pan)
+app.use("/wireTransferr",wireTransferr)
 
 
 app.listen(PORT, () => {
