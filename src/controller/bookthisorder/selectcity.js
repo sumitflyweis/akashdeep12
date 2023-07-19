@@ -13,7 +13,10 @@ exports.createCity = async (req, res) => {
 exports.getCity = async (req, res) => {
   try {
     const cities = await cityModel.find();
-    res.json(cities);
+    if (!cities) {
+      return res.status(400).json({ error: "cities data not provided" });
+    }
+    res.status(201).json({ success: true, data: cities })
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -24,7 +27,7 @@ exports.updateCity = async (req, res) => {
     const { id } = req.params;
     const { selectcity } = req.body;
     const updatedCity = await cityModel.findByIdAndUpdate(id, { selectcity }, { new: true });
-    res.json(updatedCity);
+    res.status(201).json({ success: true, data: updatedCity })
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

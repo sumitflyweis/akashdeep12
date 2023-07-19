@@ -38,10 +38,12 @@ const wireTransferSchema = mongoose.Schema({
     type: String,
   },
   recievingAmount: {
-    type: String,
+    type: Number,
+    default: 0,
   },
   convertedAmount: {
-    type: String,
+    type: Number,
+    default: 0,
   },
 
   ///////////////////////////////////////////
@@ -59,6 +61,13 @@ const wireTransferSchema = mongoose.Schema({
   AadharCard: {
     type: String,
   },
+  ref_id:{
+    type:String
+  },
+  aadharStatus: {
+    type: String,
+  },
+
   /////////////////////////////////////////////////
   //REMITTER DETAILS
 
@@ -71,36 +80,37 @@ const wireTransferSchema = mongoose.Schema({
   lastName: {
     type: String,
   },
-  AccountNumber: {
+  AccountNumberRemitter: {
     type: String,
   },
-  IFSC: {
+  IFSC_Remitter: {
     type: String,
   },
-  pan: {
+  panRemitter: {
     type: String,
   },
-  address: {
+  addressRemitter: {
     type: String,
   },
-  postCode: {
+  postCodeRemitter: {
     type: String,
   },
-  city: {
+  cityRemitter: {
     type: String,
   },
-  state: {
+  stateRemitter: {
     type: String,
   },
-  nationality: {
+  nationalityRemitter: {
     type: String,
   },
-  emailId: {
+  emailIdRemitter: {
     type: String,
   },
-  mobile: {
+  mobileRemitter: {
     type: String,
   },
+
   ///////////////////////////////////////////
   //BENEFICIARY  DETAILS
 
@@ -128,16 +138,16 @@ const wireTransferSchema = mongoose.Schema({
   recieverAddress: {
     type: String,
   },
-  country: {
+  countryBeneficiary: {
     type: String,
   },
-  pinCode: {
+  pinCodeBeneficiary: {
     type: String,
   },
-  state: {
+  stateBeneficiary: {
     type: String,
   },
-  emailId: {
+  emailIdBeneficiary: {
     type: String,
   },
   recieverBankName: {
@@ -158,7 +168,7 @@ const wireTransferSchema = mongoose.Schema({
   recieverAccountNumber: {
     type: String,
   },
-  city: {
+  cityBeneficiary: {
     type: String,
   },
   /////////////////////////////////////////

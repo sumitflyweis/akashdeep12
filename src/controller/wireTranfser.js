@@ -2,7 +2,9 @@ const wireTransferModel = require("../model/wireTranfser");
 const axios = require("axios");
 const currencyModel = require("../model/bookthisorder/addcurrency");
 const cityModel = require("../model/bookthisorder/selectcity");
-const purposs = require("../model/purpose")
+const purposs = require("../model/purpose");
+// const pann = require("../model/pancard");
+const addharcard = require("../model/addharverification");
 
 exports.wireTransfer = async (req, res) => {
   try {
@@ -13,14 +15,6 @@ exports.wireTransfer = async (req, res) => {
       receivingCurrency: req.body.receivingCurrency,
       INRCurrency: req.body.INRCurrency,
       recievingAmount: req.body.recievingAmount,
-
-      //   transferFromCity
-      //   transferToCity
-      //   purposeName
-      //   recievingCurrencyName
-      //   INRCurrencyName
-      //   recievingAmount
-      //   convertedAmount
     };
 
     const cityfrom = await cityModel.findById({
@@ -44,12 +38,12 @@ exports.wireTransfer = async (req, res) => {
     console.log(currencyINR.addcurrency);
 
     const purposes = await purposs.findById({
-        _id: data.purpose,
-      });
-      console.log(purposes.purpose)
+      _id: data.purpose,
+    });
+    console.log(purposes.purpose);
 
     const response = await axios.get(
-      `https://api.currencyscoop.com/v1/convert?api_key=4b9a3c48ebe3250b32d97a7031359674&from=${currencyData.receivingCurrency}&to=INR&amount=${data.recievingAmount}`
+      `https://api.currencyscoop.com/v1/convert?api_key=4b9a3c48ebe3250b32d97a7031359674&from=${currencyData.addcurrency}&to=INR&amount=${data.recievingAmount}`
     );
 
     console.log(response.data.value);
@@ -59,181 +53,485 @@ exports.wireTransfer = async (req, res) => {
     let obj = {
       selectCity: data.selectCity,
       tranferFrom: data.tranferFrom,
-      transferFromCity : cityfrom.selectcity,
-      transferTo : data.transferTo,
-      transferToCity : cityTo.selectcity,
+      transferFromCity: cityfrom.selectcity,
+      transferTo: data.transferTo,
+      transferToCity: cityTo.selectcity,
       purpose: data.purpose,
-      purposeName : purposes.purpose,
+      purposeName: purposes.purpose,
       receivingCurrency: req.body.receivingCurrency,
+      recievingCurrencyName: currencyData.addcurrency,
       INRCurrency: req.body.INRCurrency,
+      INRCurrencyName: currencyINR.addcurrency,
       recievingAmount: data.recievingAmount,
       convertedAmount: ConvertedAmount,
     };
-    const wiretransfer = new wireTransferModel(obj)
-    const result = await wiretransfer.save()
-    return res.status(201).json(result)
+    const wiretransfer = new wireTransferModel(obj);
+    const result = await wiretransfer.save();
+    return res.status(201).json(result);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message });
   }
 };
 
-// exports.findAllPrepaidcard = async (req, res) => {
+exports.updatepan = async (req, res) => {
+  try {
+    const { pan } = req.body;
+
+    const clientId = "CF438240CIR4MSJHSPJFOOSBU9CG";
+    const clientSecret = "0345902517133d3ac763c807a43ee181fa157b84";
+    const headers = {
+      "x-api-version": "2023-03-01",
+      "Content-Type": "application/json",
+      "X-Client-ID": clientId,
+      "X-Client-Secret": clientSecret,
+    };
+
+    const response = await axios.post(
+      "https://api.cashfree.com/verification/pan",
+      { pan },
+      {
+        headers: headers,
+      }
+    );
+
+    const createdBeneficiary = response.data;
+    console.log(createdBeneficiary);
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          pancard: pan,
+          Name: response.data.registered_name,
+          panStatus: response.data.pan_status,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedCurrencyConverter);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.addharotpWire = async (req, res) => {
+  try {
+    const { aadhaar_number } = req.body;
+
+    const clientId = "CF438240CIR4MSJHSPJFOOSBU9CG";
+    const clientSecret = "0345902517133d3ac763c807a43ee181fa157b84";
+    const headers = {
+      "x-api-version": "2023-03-01",
+      "Content-Type": "application/json",
+      "X-Client-ID": clientId,
+      "X-Client-Secret": clientSecret,
+    };
+    console.log(headers);
+    const response = await axios.post(
+      "https://api.cashfree.com/verification/offline-aadhaar/otp",
+      aadhaar_number,
+      {
+        headers: headers,
+      }
+    );
+
+    const createdBeneficiary = response.data;
+    console.log(createdBeneficiary);
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          AadharCard: aadhaar_number,
+          ref_id: response.data.ref_id,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedCurrencyConverter);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.verifyotpWire = async (req, res) => {
+  try {
+    const { otp, ref_id } = req.body;
+
+    const clientId = "CF438240CIR4MSJHSPJFOOSBU9CG";
+    const clientSecret = "0345902517133d3ac763c807a43ee181fa157b84";
+    const headers = {
+      "x-api-version": "2023-03-01",
+      "Content-Type": "application/json",
+      "X-Client-ID": clientId,
+      "X-Client-Secret": clientSecret,
+    };
+    console.log(headers);
+    const response = await axios.post(
+      "https://api.cashfree.com/verification/offline-aadhaar/verify",
+      otp,
+      ref_id,
+      {
+        headers: headers,
+      }
+    );
+
+    const createdBeneficiary = response.data;
+    console.log(createdBeneficiary);
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          aadharStatus: response.data.status,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedCurrencyConverter);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updateRemitter = async (req, res) => {
+  try {
+    const data = {
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      AccountNumberRemitter: req.body.AccountNumberRemitter,
+      IFSC_Remitter: req.body.IFSC_Remitter,
+      panRemitter: req.body.panRemitter,
+      addressRemitter: req.body.addressRemitter,
+      postCodeRemitter: req.body.postCodeRemitter,
+      cityRemitter: req.body.cityRemitter,
+      stateRemitter: req.body.stateRemitter,
+      nationalityRemitter: req.body.nationalityRemitter,
+      emailIdRemitter: req.body.emailIdRemitter,
+      mobileRemitter: req.body.mobileRemitter,
+    };
+
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          firstName: data.firstName,
+          middleName: data.middleName,
+          lastName: data.lastName,
+          AccountNumberRemitter: data.AccountNumberRemitter,
+          IFSC_Remitter: data.IFSC_Remitter,
+          panRemitter: data.panRemitter,
+          addressRemitter: data.addressRemitter,
+          postCodeRemitter: data.postCodeRemitter,
+          cityRemitter: data.cityRemitter,
+          stateRemitter: data.stateRemitter,
+          nationalityRemitter: data.nationalityRemitter,
+          emailIdRemitter: data.emailIdRemitter,
+          mobileRemitter: data.mobileRemitter,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedCurrencyConverter);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updateBeneficiary = async (req, res) => {
+  try {
+    const data = {
+      benficiaryid: req.body.benficiaryid,
+      accountHolderName: req.body.accountHolderName,
+      sortCode: req.body.sortCode,
+      transitCode: req.body.transitCode,
+      BsbNumber: req.body.BsbNumber,
+      routingNumber: req.body.routingNumber,
+      Iban: req.body.Iban,
+      recieverAddress: req.body.recieverAddress,
+      countryBeneficiary: req.body.countryBeneficiary,
+      pinCodeBeneficiary: req.body.pinCodeBeneficiary,
+      stateBeneficiary: req.body.stateBeneficiary,
+      emailIdBeneficiary: req.body.emailIdBeneficiary,
+      recieverBankName: req.body.recieverBankName,
+      recieverBankCountry: req.body.recieverBankCountry,
+      recieverBankSwiftCode: req.body.recieverBankSwiftCode,
+      recieverBankAddress1: req.body.recieverBankAddress1,
+      recieverBankAddress2: req.body.recieverBankAddress2,
+      recieverAccountNumber: req.body.recieverAccountNumber,
+      cityBeneficiary: req.body.cityBeneficiary,
+    };
+
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          benficiaryid: data.benficiaryid,
+          accountHolderName: data.accountHolderName,
+          sortCode: data.sortCode,
+          transitCode: data.transitCode,
+          BsbNumber: data.BsbNumber,
+          routingNumber: data.routingNumber,
+          Iban: data.Iban,
+          recieverAddress: data.recieverAddress,
+          countryBeneficiary: data.countryBeneficiary,
+          pinCodeBeneficiary: data.pinCodeBeneficiary,
+          stateBeneficiary: data.stateBeneficiary,
+          emailIdBeneficiary: data.emailIdBeneficiary,
+          recieverBankName: data.recieverBankName,
+          recieverBankCountry: data.recieverBankCountry,
+          recieverBankSwiftCode: data.recieverBankSwiftCode,
+          recieverBankAddress1: data.recieverBankAddress1,
+          recieverBankAddress2: data.recieverBankAddress2,
+          recieverAccountNumber: data.recieverAccountNumber,
+          cityBeneficiary: data.cityBeneficiary,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedCurrencyConverter);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updatebifurcation = async (req, res) => {
+  try {
+    const {
+      exchangeRate,
+      transferAmountInFCY,
+      remittenceServiceCharge,
+     /* totalFundingInINR,*/
+     purpose,
+    } = req.body
+
+    const GstOnCharge = (remittenceServiceCharge * 0.18).toFixed(2);
+
+    const total = parseFloat(exchangeRate) * parseFloat(transferAmountInFCY);
+
+    let gstOnCurrencyConversion = "";
+
+    if (total <= 25000) {
+      gstOnCurrencyConversion = "45";
+    } else if (total <= 100000) {
+      gstOnCurrencyConversion = ((0.18/100) * total).toFixed(2);
+    } else if (total <= 1000000) {
+      gstOnCurrencyConversion = (180 + (0.09/100) * (total - 100000)).toFixed(2);
+    } else {
+      gstOnCurrencyConversion = (990 + (0.018/100) * (total - 1000000)).toFixed(2);
+    }
+
+    let tcs = "";
+    let tcsFlag = "";
+
+    if (total <= 7000000) {
+      // Tax system before 1st Oct 2023
+      if (purpose === "education (financed by loan)") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((0.5 / 100) * total).toFixed(2);
+        }
+      } else if (purpose === "education (other than financed by loan)") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((5 / 100) * total).toFixed(2);
+        }
+      } else if (purpose === "other purposes") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((5 / 100) * total).toFixed(2);
+        }
+      } else if (purpose === "overseas tour program package") {
+        tcs = ((5 / 100) * total).toFixed(2);
+      }
+    } else {
+      // Tax system after 1st Oct 2023
+      if (purpose === "education (financed by loan)") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((0.5 / 100) * total).toFixed(2);
+        }
+      } else if (purpose === "education (other than financed by loan)") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((5 / 100) * total).toFixed(2);
+        }
+      } else if (purpose === "other purposes") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((20 / 100) * total).toFixed(2);
+        }
+      } else if (purpose === "overseas tour program package") {
+        if (total < 700000) {
+          tcs = ((5 / 100) * total).toFixed(2);
+        } else {
+          tcsFlag = ((20 / 100) * total).toFixed(2);
+        }
+      }
+    }
+ 
+    const TotalOfAllCharges = (
+      parseFloat(remittenceServiceCharge) +
+      parseFloat(GstOnCharge) +
+      parseFloat(gstOnCurrencyConversion) +
+      (tcsFlag ? parseFloat(tcsFlag) : parseFloat(tcs))
+    ).toFixed(2);
+
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          exchangeRate: exchangeRate,
+          transferAmountInFCY: transferAmountInFCY,
+          remittenceServiceCharge: remittenceServiceCharge,
+          GstOnCharge: GstOnCharge,
+          GstOnCurrencyConversion: gstOnCurrencyConversion,
+          tcs: tcs,
+          tcsFlag: tcsFlag,
+          totalFundingInINR: total,
+          TotalOfAllCharges: TotalOfAllCharges,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedCurrencyConverter);
+
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// exports.updatebifurcation = async (req, res) => {
 //   try {
-//     const currencies = await prepaidtravelModel.find();
-//     if (!currencies) {
-//       return res.status(404).send("Prepaid Travel Card not found");
+//     const {
+//       exchangeRate,
+//       transferAmountInFCY,
+//       remittenceServiceCharge,
+//       purpose,
+//     } = req.body;
+
+//     const GstOnCharge = (remittenceServiceCharge * 0.18).toFixed(2);
+
+//     const total = parseFloat(exchangeRate) * parseFloat(transferAmountInFCY);
+
+//     let gstOnCurrencyConversion = "";
+
+//     if (total <= 25000) {
+//       gstOnCurrencyConversion = "45";
+//     } else if (total <= 100000) {
+//       gstOnCurrencyConversion = ((0.18 / 100) * total).toFixed(2);
+//     } else if (total <= 1000000) {
+//       gstOnCurrencyConversion = (
+//         180 + (0.09 / 100) * (total - 100000)
+//       ).toFixed(2);
+//     } else {
+//       gstOnCurrencyConversion = (
+//         990 + (0.018 / 100) * (total - 1000000)
+//       ).toFixed(2);
 //     }
-//       res.status(200).json({
-//         status: 200,
-//         message: "Order created successfully.",
-//         data: currencies,
-//       });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
-// exports.getPrepaidTravelById = async (req, res) => {
-//   try {
-//     const prepaidtravel = await prepaidtravelModel.findById({
-//       _id: req.params.id,
-//     });
-//     if (!prepaidtravel) {
-//       return res.status(404).send("Prepaid Travel Card not found");
+//     let tcs = "";
+//     let tcsFlag = "";
+
+//     if (total <= 7000000) {
+//       // Tax system before 1st Oct 2023
+//       if (purpose === "education (financed by loan)") {
+//         if (total < 700000) {
+//           tcs = "0";
+//         } else {
+//           tcsFlag = ((0.5 / 100) * total).toFixed(2);
+//         }
+//       } else if (purpose === "education (other than financed by loan)") {
+//         if (total < 700000) {
+//           tcs = "0";
+//         } else {
+//           tcsFlag = ((5 / 100) * total).toFixed(2);
+//         }
+//       } else if (purpose === "other purposes") {
+//         if (total < 700000) {
+//           tcs = "0";
+//         } else {
+//           tcsFlag = ((5 / 100) * total).toFixed(2);
+//         }
+//       } else if (purpose === "overseas tour program package") {
+//         tcs = ((5 / 100) * total).toFixed(2);
+//       }
+//     } else {
+//       // Tax system after 1st Oct 2023
+//       if (purpose === "education (financed by loan)") {
+//         if (total < 700000) {
+//           tcs = "0";
+//         } else {
+//           tcsFlag = ((0.5 / 100) * total).toFixed(2);
+//         }
+//       } else if (purpose === "education (other than financed by loan)") {
+//         if (total < 700000) {
+//           tcs = "0";
+//         } else {
+//           tcsFlag = ((5 / 100) * total).toFixed(2);
+//         }
+//       } else if (purpose === "other purposes") {
+//         if (total < 700000) {
+//           tcs = "0";
+//         } else {
+//           tcsFlag = ((20 / 100) * total).toFixed(2);
+//         }
+//       } else if (purpose === "overseas tour program package") {
+//         if (total < 700000) {
+//           tcs = ((5 / 100) * total).toFixed(2);
+//         } else {
+//           tcsFlag = ((20 / 100) * total).toFixed(2);
+//         }
+//       }
 //     }
-//     res.status(200).json({
-//       status: 200,
-//       message: "prepaidtravel created successfully.",
-//       data: prepaidtravel,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
-// exports.updatePrepaidTravelById = async (req, res) => {
-//   try {
-//     console.log("hi");
-//     let panCard = req.files["pan"];
-//     let passportF = req.files["passportFront"];
-//     let passportB = req.files["passportBack"];
-//     let airtic = req.files["air"];
-//     let Valid = req.files["Visa"];
+//     const TotalOfAllCharges = (
+//       parseFloat(remittenceServiceCharge) +
+//       parseFloat(GstOnCharge) +
+//       parseFloat(GstOnCurrencyConversion) +
+//       (tcsFlag ? parseFloat(tcsFlag) : parseFloat(tcs))
+//     ).toFixed(2);
 
-//     req.body.uploadPanCard = panCard[0].path;
-//     req.body.PassportFront = passportF[0].path;
-//     req.body.PassportBack = passportB[0].path;
-//     req.body.airTicket = airtic[0].path;
-//     req.body.validVisa = Valid[0].path;
-
-//     const upda = await prepaidtravelModel.findByIdAndUpdate(
+//     const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
 //       { _id: req.params.id },
 //       {
 //         $set: {
-//           uploadPanCard: req.body.uploadPanCard,
-//           PassportFront: req.body.PassportFront,
-//           PassportBack: req.body.PassportBack,
-//           airTicket: req.body.airTicket,
-//           validVisa: req.body.validVisa,
+//           exchangeRate: exchangeRate,
+//           transferAmountInFCY: transferAmountInFCY,
+//           remittenceServiceCharge: remittenceServiceCharge,
+//           GstOnCharge: GstOnCharge,
+//           GstOnCurrencyConversion: gstOnCurrencyConversion,
+//           tcs: tcs,
+//           tcsFlag: tcsFlag,
+//           totalFundingInINR: total,
+//           TotalOfAllCharges: TotalOfAllCharges,
 //         },
 //       },
 //       { new: true }
 //     );
-//     if (!upda) {
-//       res.status(404).json({ message: "travel card  not found" });
-//     } else {
-//       res.status(200).json(upda);
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
-// exports.updatePrepaidAccountDetails = async (req, res) => {
-//   try {
-//     const prepaidtravel = await prepaidtravelModel.findById({
-//       _id: req.params.id,
-//     });
-//     if (!prepaidtravel) {
-//       return res.status(404).send("Prepaid Travel Card not found");
-//     }
-//     let exchangeRate =
-//       prepaidtravel.ConvertedAmountToINR / prepaidtravel.forexAmount;
-
-//     const data = {
-//       data1: req.body.data1,
-//       data2: req.body.data2,
-//       exchangeRate: exchangeRate,
-//       transferAmountInFCY: req.body.transferAmountInFCY1,
-//       Total: prepaidtravel.total,
-//       RemittanceServiceCharge: req.body.RemittanceServiceCharge,
-//       GstOnCharge: req.body.GstOnCharge,
-//       GstOnCurrencyConversion: req.body.GstOnCurrencyConversion,
-//       TCS: req.body.TCS,
-//       TCS_flag: req.body.TCS_flag,
-//     };
-
-//     const TotalFundingAmtInINR =
-//       prepaidtravel.total +
-//       parseInt(data.transferAmountInFCY) +
-//       parseInt(data.RemittanceServiceCharge) +
-//       parseInt(data.GstOnCharge) +
-//       parseInt(data.GstOnCurrencyConversion) +
-//       parseInt(data.TCS) +
-//       parseInt(data.TCS_flag);
-
-//     const TotalOfAllChargesAndTaxes =
-//       parseInt(data.transferAmountInFCY) +
-//       parseInt(data.RemittanceServiceCharge) +
-//       parseInt(data.GstOnCharge) +
-//       parseInt(data.GstOnCurrencyConversion) +
-//       parseInt(data.TCS) +
-//       parseInt(data.TCS_flag);
-
-//     const currency = await prepaidtravelModel.findByIdAndUpdate(
-//       { _id: prepaidtravel._id },
-//       {
-//         $set: {
-//           data1: data.data1,
-//           data2: data.data2,
-//           exchangeRate: data.exchangeRate,
-//           transferAmountInFCY: data.transferAmountInFCY,
-//           Total: data.Total,
-//           RemittanceServiceCharge: data.RemittanceServiceCharge,
-//           GstOnCharge: data.GstOnCharge,
-//           GstOnCurrencyConversion: data.GstOnCurrencyConversion,
-//           TCS: data.TCS,
-//           TCS_flag: data.TCS_flag,
-//           TotalFundingAmtInINR: TotalFundingAmtInINR,
-//           TotalOfAllChargesAndTaxes: TotalOfAllChargesAndTaxes,
-//         },
-//       },
-//       { new: true }
-//     );
-//     res.status(200).json({
-//       status: 200,
-//       message: "prepaidtravel created successfully.",
-//       data: currency,
-//     });
+//     res.status(201).json(updatedCurrencyConverter);
 //   } catch (error) {
 //     console.log(error);
-//     res.status(500).json({ error: error.message });
+//     res.status(500).json({ error: "Internal server error" });
 //   }
 // };
 
-// exports.deletePrepaidTravelById = async (req, res) => {
-//   try {
-//     const prepaidtravel = await prepaidtravelModel.findByIdAndDelete(
-//       req.params.id
-//     );
-//     if (!prepaidtravel) {
-//       return res.status(404).send("Prepaid Travel Card not found");
-//     }
-//     res.sendStatus(204);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };

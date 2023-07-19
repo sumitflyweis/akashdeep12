@@ -11,19 +11,23 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
-// router.post('/', wireTransferController.createTravelInsurance);
+router.post('/', wireTransferController.wireTransfer)
 
 // router.get('/', wireTransferController.getAllTravelInsurances);
 
 // router.get('/:id', wireTransferController.getAllTravelInsurancesById);
 
-// router.put('/pan/:id', upload.array('image'), wireTransferController.updateTravelInsuranceByIdPan);
+router.put('/pan/:id', wireTransferController.updatepan);
 
-// router.put('/passport/:id', upload.array('image'), wireTransferController.updateTravelInsuranceByIdPassport);
+router.put("/addharotp/:id", wireTransferController.addharotpWire);
 
-// router.put('/ticket/:id', upload.array('image'), wireTransferController.updateTravelInsuranceByIdTicket);
+router.put("/verifyotp/:id", wireTransferController.verifyotpWire)
 
-// router.put('/visa/:id', upload.array('image'), wireTransferController.updateTravelInsuranceByIdVisa);
+router.put('/updateRemitter/:id',  wireTransferController.updateRemitter);
+
+router.put('/updateBeneficiary/:id', wireTransferController.updateBeneficiary)
+
+router.put('/updatebifurcation/:id',  wireTransferController.updatebifurcation);
 
 // router.delete('/:id', wireTransferController.deleteTravelInsuranceById);
 
