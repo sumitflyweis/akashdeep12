@@ -108,28 +108,51 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     console.log("hi");
-    let panCard = req.files["pan"];
-    req.body.pan = panCard[0].path;
-    let pass = req.files["passportt"];
-    req.body.passport1 = pass[0].path;
+    let panCard = req.files["pan"]
+    req.body.pan = panCard[0].path
+    let pass = req.files["passportt"]
+    req.body.passport1 = pass[0].path
+    const pan = req.body.panCard
 
-    const currency = await ForeignCurrency.findByIdAndUpdate(
+
+    const clientId = "CF438240CIR4MSJHSPJFOOSBU9CG";
+    const clientSecret = "0345902517133d3ac763c807a43ee181fa157b84";
+    const headers = {
+      "x-api-version": "2023-03-01",
+      "Content-Type": "application/json",
+      "X-Client-ID": clientId,
+      "X-Client-Secret": clientSecret,
+    };
+
+    const response = await axios.post(
+      "https://api.cashfree.com/verification/pan",
+      { pan },
+      {
+        headers: headers,
+      }
+    );
+
+    const createdBeneficiary = response.data;
+    console.log(createdBeneficiary);
+
+    const updatedCurrencyConverter = await ForeignCurrency.findByIdAndUpdate(
       { _id: req.params.id },
       {
         $set: {
-          panCard: req.body.panCard,
+          panCard: pan,
+          panStatus: response.data.pan_status,
           uploadPanCard: req.body.pan,
           passport: req.body.passport,
           uploadPassport: req.body.passport1,
+          
         },
       },
       { new: true }
     );
-    if (!currency) {
-      res.status(404).json({ message: "Currency not found" });
-    } else {
-      res.status(200).json(currency);
-    }
+
+    res.status(201).json(updatedCurrencyConverter);
+
+   
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

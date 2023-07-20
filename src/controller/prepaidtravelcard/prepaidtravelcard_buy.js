@@ -2,6 +2,7 @@ const prepaidtravelModel = require("../../model/prepaidtravelcard/prepaidtravelc
 const axios = require("axios");
 const currencyModel = require("../../model/bookthisorder/addcurrency");
 const cityModel = require("../../model/bookthisorder/selectcity");
+const purpose = require("../../model/purpose");
 
 exports.createPrepaidTravel = async (req, res) => {
   try {
@@ -9,7 +10,8 @@ exports.createPrepaidTravel = async (req, res) => {
       selectCity: req.body.selectCity,
       currency: req.body.currency,
       forexAmount: req.body.forexAmount,
-      buy_reload_unload:"buy"
+      purpose: req.body.purpose,
+      buy_reload_unload: "buy",
     };
 
     const currenciesToChange = await currencyModel.findById({
@@ -21,6 +23,11 @@ exports.createPrepaidTravel = async (req, res) => {
       _id: data.selectCity,
     });
     console.log(cityData.selectcity);
+
+    const purposee = await purpose.findById({
+      _id: data.purpose,
+    });
+    console.log(purposee.purpose);
     // res.status(200).json(currencies);
     // Make a request to an external currency conversion API
     const response = await axios.get(
@@ -32,7 +39,7 @@ exports.createPrepaidTravel = async (req, res) => {
     const total = response.data.value;
 
     let obj = {
-      buy_reload_unload:data.buy_reload_unload,
+      buy_reload_unload: data.buy_reload_unload,
       selectCity: data.selectCity,
       city: cityData.selectcity,
       currency: data.currency,
@@ -40,6 +47,8 @@ exports.createPrepaidTravel = async (req, res) => {
       forexAmount: data.forexAmount,
       ConvertedAmountToINR: ConvertedAmount,
       total: total,
+      purpose: data.purpose,
+      purposeName: purposee.purpose,
     };
     const prepaidtravel = new prepaidtravelModel(obj);
     const result = await prepaidtravel.save();
@@ -56,11 +65,11 @@ exports.findAllPrepaidcard = async (req, res) => {
     if (!currencies) {
       return res.status(404).send("Prepaid Travel Card not found");
     }
-      res.status(200).json({
-        status: 200,
-        message: "Order created successfully.",
-        data: currencies,
-      });
+    res.status(200).json({
+      status: 200,
+      message: "Order created successfully.",
+      data: currencies,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -87,7 +96,6 @@ exports.getPrepaidTravelById = async (req, res) => {
 
 exports.updatePrepaidTravelById = async (req, res) => {
   try {
-    console.log("hi");
     let panCard = req.files["pan"];
     let passportF = req.files["passportFront"];
     let passportB = req.files["passportBack"];
@@ -100,11 +108,35 @@ exports.updatePrepaidTravelById = async (req, res) => {
     req.body.airTicket = airtic[0].path;
     req.body.validVisa = Valid[0].path;
 
+    const pan = req.body.panCard;
+
+    const clientId = "CF438240CIR4MSJHSPJFOOSBU9CG";
+    const clientSecret = "0345902517133d3ac763c807a43ee181fa157b84";
+    const headers = {
+      "x-api-version": "2023-03-01",
+      "Content-Type": "application/json",
+      "X-Client-ID": clientId,
+      "X-Client-Secret": clientSecret,
+    };
+
+    const response = await axios.post(
+      "https://api.cashfree.com/verification/pan",
+      { pan },
+      {
+        headers: headers,
+      }
+    );
+    console.log("hi");
+    const createdBeneficiary = response.data;
+    console.log(createdBeneficiary);
+
     const upda = await prepaidtravelModel.findByIdAndUpdate(
       { _id: req.params.id },
       {
         $set: {
+          panCard: pan,
           uploadPanCard: req.body.uploadPanCard,
+          panStatus: response.data.pan_status,
           PassportFront: req.body.PassportFront,
           PassportBack: req.body.PassportBack,
           airTicket: req.body.airTicket,
@@ -119,75 +151,112 @@ exports.updatePrepaidTravelById = async (req, res) => {
       res.status(200).json(upda);
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
 
 exports.updatePrepaidAccountDetails = async (req, res) => {
   try {
+    const data = {
+      RemittanceServiceCharge: req.body.RemittanceServiceCharge,
+      data1: req.body.data1,
+      data2: req.body.data2,
+    };
     const prepaidtravel = await prepaidtravelModel.findById({
       _id: req.params.id,
     });
     if (!prepaidtravel) {
       return res.status(404).send("Prepaid Travel Card not found");
     }
+
+
     let exchangeRate =
       prepaidtravel.ConvertedAmountToINR / prepaidtravel.forexAmount;
+   
+    const GstOnCharge = (parseFloat(data.RemittanceServiceCharge) * 0.18).toFixed(2);
+   
+    const total =
+      parseFloat(exchangeRate) * parseFloat(prepaidtravel.forexAmount);
+     
+    let gstOnCurrencyConversion = "";
 
-    const data = {
-      data1: req.body.data1,
-      data2: req.body.data2,
-      exchangeRate: exchangeRate,
-      transferAmountInFCY: req.body.transferAmountInFCY1,
-      Total: prepaidtravel.total,
-      RemittanceServiceCharge: req.body.RemittanceServiceCharge,
-      GstOnCharge: req.body.GstOnCharge,
-      GstOnCurrencyConversion: req.body.GstOnCurrencyConversion,
-      TCS: req.body.TCS,
-      TCS_flag: req.body.TCS_flag,
-    };
+    if (total <= 25000) {
+      gstOnCurrencyConversion = "45";
+    } else if (total <= 100000) {
+      gstOnCurrencyConversion = ((0.18 / 100) * total).toFixed(2);
+    } else if (total <= 1000000) {
+      gstOnCurrencyConversion = (180 + (0.09 / 100) * (total - 100000)).toFixed(
+        2
+      );
+    } else {
+      gstOnCurrencyConversion = (
+        990 +
+        (0.018 / 100) * (total - 1000000)
+      ).toFixed(2);
+    }
+   
+    let tcs = "";
+    let tcsFlag = "";
 
-    const TotalFundingAmtInINR =
-      prepaidtravel.total +
-      parseInt(data.transferAmountInFCY) +
-      parseInt(data.RemittanceServiceCharge) +
-      parseInt(data.GstOnCharge) +
-      parseInt(data.GstOnCurrencyConversion) +
-      parseInt(data.TCS) +
-      parseInt(data.TCS_flag);
+    if (total <= 7000000) {
+      // Tax system before 1st Oct 2023
+      if (prepaidtravel.purposeName === "education (financed by loan)") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((0.5 / 100) * total).toFixed(2);
+        }
+      } else if (prepaidtravel.purposeName === "education (other than financed by loan)") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((5 / 100) * total).toFixed(2);
+        }
+      } else if (prepaidtravel.purposeName === "other purposes") {
+        if (total < 700000) {
+          tcs = "0";
+        } else {
+          tcsFlag = ((5 / 100) * total).toFixed(2);
+        }
+      } else if (prepaidtravel.purposeName === "overseas tour program package") {
+        tcs = ((5 / 100) * total).toFixed(2);
+      }
+    }
+    
 
-    const TotalOfAllChargesAndTaxes =
-      parseInt(data.transferAmountInFCY) +
-      parseInt(data.RemittanceServiceCharge) +
-      parseInt(data.GstOnCharge) +
-      parseInt(data.GstOnCurrencyConversion) +
-      parseInt(data.TCS) +
-      parseInt(data.TCS_flag);
+    const TotalOfAllCharges = (
+      parseFloat(data.RemittanceServiceCharge) +
+      parseFloat(GstOnCharge) +
+      parseFloat(gstOnCurrencyConversion) +
+      (tcsFlag ? parseFloat(tcsFlag) : parseFloat(tcs))
+    ).toFixed(2)
 
-    const currency = await prepaidtravelModel.findByIdAndUpdate(
+ 
+    const updatedCurrencyConverter = await prepaidtravelModel.findByIdAndUpdate(
       { _id: prepaidtravel._id },
       {
         $set: {
           data1: data.data1,
           data2: data.data2,
-          exchangeRate: data.exchangeRate,
-          transferAmountInFCY: data.transferAmountInFCY,
-          Total: data.Total,
+          exchangeRate: exchangeRate,
+          transferAmountInFCY: prepaidtravel.forexAmount,
           RemittanceServiceCharge: data.RemittanceServiceCharge,
-          GstOnCharge: data.GstOnCharge,
-          GstOnCurrencyConversion: data.GstOnCurrencyConversion,
-          TCS: data.TCS,
-          TCS_flag: data.TCS_flag,
-          TotalFundingAmtInINR: TotalFundingAmtInINR,
-          TotalOfAllChargesAndTaxes: TotalOfAllChargesAndTaxes,
+          GstOnCharge: GstOnCharge,
+          GstOnCurrencyConversion: gstOnCurrencyConversion,
+          TCS: tcs,
+          TCS_flag: tcsFlag,
+          TotalFundingAmtInINR: total,
+          TotalOfAllChargesAndTaxes: TotalOfAllCharges,
         },
       },
       { new: true }
     );
+
     res.status(200).json({
       status: 200,
       message: "prepaidtravel created successfully.",
-      data: currency,
+      data: updatedCurrencyConverter,
     });
   } catch (error) {
     console.log(error);

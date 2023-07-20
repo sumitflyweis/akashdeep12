@@ -65,6 +65,9 @@ const foriegncurrencySchema = mongoose.Schema({
     type:String,
     default:""
   },
+  panStatus:{
+    type:String
+  },
   passport:{
     type:String,
     default:""

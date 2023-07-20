@@ -29,6 +29,13 @@ const prepaidtravelSchema = mongoose.Schema({
     type: String,
     default: "",
   },
+  panCard:{
+    type:String,
+    default:""
+  },
+  panStatus:{
+    type:String
+  },
   PassportFront: {
     type: String,
     default: "",
@@ -54,19 +61,22 @@ const prepaidtravelSchema = mongoose.Schema({
     default: "false",
   },
   ///////////////////////////////////////////////
-  exchangeRate: {
+  purpose: {
+    type: objectId,
+    ref: "purpose",
+  },
+  purposeName:{
+    type:String
+  },
+  exchangeRate : {
     type: String,
     default: "",
   },
-  transferAmountInFCY: {
+  transferAmountInFCY : {
     type: String,
     default: "",
   },
-  Total: {
-    type: String,
-    default: "",
-  },
-  RemittanceServiceCharge: {
+  RemittanceServiceCharge : {
     type: String,
     default: "",
   },
@@ -74,7 +84,7 @@ const prepaidtravelSchema = mongoose.Schema({
     type: String,
     default: "",
   },
-  GstOnCurrencyConversion: {
+  GstOnCurrencyConversion : {
     type: String,
     default: "",
   },

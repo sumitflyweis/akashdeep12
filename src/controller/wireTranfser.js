@@ -310,81 +310,71 @@ exports.updatebifurcation = async (req, res) => {
       exchangeRate,
       transferAmountInFCY,
       remittenceServiceCharge,
-     /* totalFundingInINR,*/
-     purpose,
-    } = req.body
+      /* totalFundingInINR,*/
+    /*  purpose,*/
+    } = req.body;
+
+    const wiretravel = await wireTransferModel.findById({
+      _id: req.params.id,
+    });
+    if (!wiretravel) {
+      return res.status(404).send("wiretravel Card not found");
+    }
+    
 
     const GstOnCharge = (remittenceServiceCharge * 0.18).toFixed(2);
+    
 
     const total = parseFloat(exchangeRate) * parseFloat(transferAmountInFCY);
 
+   
     let gstOnCurrencyConversion = "";
 
     if (total <= 25000) {
       gstOnCurrencyConversion = "45";
     } else if (total <= 100000) {
-      gstOnCurrencyConversion = ((0.18/100) * total).toFixed(2);
+      gstOnCurrencyConversion = ((0.18 / 100) * total).toFixed(2);
     } else if (total <= 1000000) {
-      gstOnCurrencyConversion = (180 + (0.09/100) * (total - 100000)).toFixed(2);
+      gstOnCurrencyConversion = (180 + (0.09 / 100) * (total - 100000)).toFixed(
+        2
+      );
     } else {
-      gstOnCurrencyConversion = (990 + (0.018/100) * (total - 1000000)).toFixed(2);
+      gstOnCurrencyConversion = (
+        990 +
+        (0.018 / 100) * (total - 1000000)
+      ).toFixed(2);
     }
 
+   
     let tcs = "";
     let tcsFlag = "";
 
     if (total <= 7000000) {
       // Tax system before 1st Oct 2023
-      if (purpose === "education (financed by loan)") {
+      if (wiretravel.purposeName === "education (financed by loan)") {
         if (total < 700000) {
           tcs = "0";
         } else {
           tcsFlag = ((0.5 / 100) * total).toFixed(2);
         }
-      } else if (purpose === "education (other than financed by loan)") {
+      } else if (wiretravel.purposeName === "education (other than financed by loan)") {
         if (total < 700000) {
           tcs = "0";
         } else {
           tcsFlag = ((5 / 100) * total).toFixed(2);
         }
-      } else if (purpose === "other purposes") {
+      } else if (wiretravel.purposeName === "other purposes") {
         if (total < 700000) {
           tcs = "0";
         } else {
           tcsFlag = ((5 / 100) * total).toFixed(2);
         }
-      } else if (purpose === "overseas tour program package") {
+      } else if (wiretravel.purposeName === "overseas tour program package") {
         tcs = ((5 / 100) * total).toFixed(2);
       }
-    } else {
-      // Tax system after 1st Oct 2023
-      if (purpose === "education (financed by loan)") {
-        if (total < 700000) {
-          tcs = "0";
-        } else {
-          tcsFlag = ((0.5 / 100) * total).toFixed(2);
-        }
-      } else if (purpose === "education (other than financed by loan)") {
-        if (total < 700000) {
-          tcs = "0";
-        } else {
-          tcsFlag = ((5 / 100) * total).toFixed(2);
-        }
-      } else if (purpose === "other purposes") {
-        if (total < 700000) {
-          tcs = "0";
-        } else {
-          tcsFlag = ((20 / 100) * total).toFixed(2);
-        }
-      } else if (purpose === "overseas tour program package") {
-        if (total < 700000) {
-          tcs = ((5 / 100) * total).toFixed(2);
-        } else {
-          tcsFlag = ((20 / 100) * total).toFixed(2);
-        }
-      }
     }
- 
+    
+    
     const TotalOfAllCharges = (
       parseFloat(remittenceServiceCharge) +
       parseFloat(GstOnCharge) +
@@ -411,127 +401,43 @@ exports.updatebifurcation = async (req, res) => {
     );
 
     res.status(201).json(updatedCurrencyConverter);
-
-
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// exports.updatebifurcation = async (req, res) => {
-//   try {
-//     const {
-//       exchangeRate,
-//       transferAmountInFCY,
-//       remittenceServiceCharge,
-//       purpose,
-//     } = req.body;
 
-//     const GstOnCharge = (remittenceServiceCharge * 0.18).toFixed(2);
 
-//     const total = parseFloat(exchangeRate) * parseFloat(transferAmountInFCY);
+exports.updateDocument = async (req, res) => {
+  try {
+    data = {
+      documentName: req.body.documentName,
+      documentNumber: req.body.documentNumber,
+      city: req.body.city,
+      purposeOfIssue: req.body.purposeOfIssue,
+      dateOfIssue: req.body.dateOfIssue,
+      countryOfIssue: req.body.countryOfIssue,
+    }
 
-//     let gstOnCurrencyConversion = "";
+    const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          documentName: data.documentName,
+          documentNumber: data.documentNumber,
+          city: data.city,
+          purposeOfIssue: data.purposeOfIssue,
+          dateOfIssue: data.dateOfIssue,
+          countryOfIssue: data.countryOfIssue,
+        },
+      },
+      { new: true }
+    );
 
-//     if (total <= 25000) {
-//       gstOnCurrencyConversion = "45";
-//     } else if (total <= 100000) {
-//       gstOnCurrencyConversion = ((0.18 / 100) * total).toFixed(2);
-//     } else if (total <= 1000000) {
-//       gstOnCurrencyConversion = (
-//         180 + (0.09 / 100) * (total - 100000)
-//       ).toFixed(2);
-//     } else {
-//       gstOnCurrencyConversion = (
-//         990 + (0.018 / 100) * (total - 1000000)
-//       ).toFixed(2);
-//     }
-
-//     let tcs = "";
-//     let tcsFlag = "";
-
-//     if (total <= 7000000) {
-//       // Tax system before 1st Oct 2023
-//       if (purpose === "education (financed by loan)") {
-//         if (total < 700000) {
-//           tcs = "0";
-//         } else {
-//           tcsFlag = ((0.5 / 100) * total).toFixed(2);
-//         }
-//       } else if (purpose === "education (other than financed by loan)") {
-//         if (total < 700000) {
-//           tcs = "0";
-//         } else {
-//           tcsFlag = ((5 / 100) * total).toFixed(2);
-//         }
-//       } else if (purpose === "other purposes") {
-//         if (total < 700000) {
-//           tcs = "0";
-//         } else {
-//           tcsFlag = ((5 / 100) * total).toFixed(2);
-//         }
-//       } else if (purpose === "overseas tour program package") {
-//         tcs = ((5 / 100) * total).toFixed(2);
-//       }
-//     } else {
-//       // Tax system after 1st Oct 2023
-//       if (purpose === "education (financed by loan)") {
-//         if (total < 700000) {
-//           tcs = "0";
-//         } else {
-//           tcsFlag = ((0.5 / 100) * total).toFixed(2);
-//         }
-//       } else if (purpose === "education (other than financed by loan)") {
-//         if (total < 700000) {
-//           tcs = "0";
-//         } else {
-//           tcsFlag = ((5 / 100) * total).toFixed(2);
-//         }
-//       } else if (purpose === "other purposes") {
-//         if (total < 700000) {
-//           tcs = "0";
-//         } else {
-//           tcsFlag = ((20 / 100) * total).toFixed(2);
-//         }
-//       } else if (purpose === "overseas tour program package") {
-//         if (total < 700000) {
-//           tcs = ((5 / 100) * total).toFixed(2);
-//         } else {
-//           tcsFlag = ((20 / 100) * total).toFixed(2);
-//         }
-//       }
-//     }
-
-//     const TotalOfAllCharges = (
-//       parseFloat(remittenceServiceCharge) +
-//       parseFloat(GstOnCharge) +
-//       parseFloat(GstOnCurrencyConversion) +
-//       (tcsFlag ? parseFloat(tcsFlag) : parseFloat(tcs))
-//     ).toFixed(2);
-
-//     const updatedCurrencyConverter = await wireTransferModel.findByIdAndUpdate(
-//       { _id: req.params.id },
-//       {
-//         $set: {
-//           exchangeRate: exchangeRate,
-//           transferAmountInFCY: transferAmountInFCY,
-//           remittenceServiceCharge: remittenceServiceCharge,
-//           GstOnCharge: GstOnCharge,
-//           GstOnCurrencyConversion: gstOnCurrencyConversion,
-//           tcs: tcs,
-//           tcsFlag: tcsFlag,
-//           totalFundingInINR: total,
-//           TotalOfAllCharges: TotalOfAllCharges,
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     res.status(201).json(updatedCurrencyConverter);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
-
+    res.status(201).json(updatedCurrencyConverter);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

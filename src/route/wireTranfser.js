@@ -29,6 +29,8 @@ router.put('/updateBeneficiary/:id', wireTransferController.updateBeneficiary)
 
 router.put('/updatebifurcation/:id',  wireTransferController.updatebifurcation);
 
+router.put('/updateDocument/:id',  wireTransferController.updateDocument);
+
 // router.delete('/:id', wireTransferController.deleteTravelInsuranceById);
 
-module.exports = router;
+module.exports = router
