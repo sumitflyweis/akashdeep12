@@ -11,11 +11,14 @@ exports.wireTransfer = async (req, res) => {
     data = {
       tranferFrom: req.body.tranferFrom,
       transferTo: req.body.transferTo,
-      purpose: req.body.purpose,
-      receivingCurrency: req.body.receivingCurrency,
-      INRCurrency: req.body.INRCurrency,
+      // purpose: req.body.purpose,
+      purposeName :req.body.purposeName,
+      // receivingCurrency: req.body.receivingCurrency,
+      recievingCurrencyName:req.body.recievingCurrencyName,
+      // INRCurrency: req.body.INRCurrency,
+      INRCurrencyName:req.body.INRCurrencyName,
       recievingAmount: req.body.recievingAmount,
-    };
+    }
 
     const cityfrom = await cityModel.findById({
       _id: data.tranferFrom,
@@ -25,30 +28,42 @@ exports.wireTransfer = async (req, res) => {
     const cityTo = await cityModel.findById({
       _id: data.transferTo,
     });
-    console.log(cityTo.selectcity);
+    console.log(cityTo.selectcity)
 
-    const currencyData = await currencyModel.findById({
-      _id: data.receivingCurrency,
-    });
-    console.log(currencyData.addcurrency);
+    // const currencyData = await currencyModel.findById({
+    //   _id: data.receivingCurrency,
+    // });
+    // console.log(currencyData.addcurrency)
 
-    const currencyINR = await currencyModel.findById({
-      _id: data.INRCurrency,
-    });
-    console.log(currencyINR.addcurrency);
+    // const currencyINR = await currencyModel.findById({
+    //   _id: data.INRCurrency,
+    // });
+    // console.log(currencyINR.addcurrency)
 
-    const purposes = await purposs.findById({
-      _id: data.purpose,
-    });
-    console.log(purposes.purpose);
+
+    const currencyData = await currencyModel.findOne({
+      addcurrency: data.recievingCurrencyName,
+      });
+      console.log(currencyData._id)
+  
+      const currencyINR = await currencyModel.findOne({
+        addcurrency: data.INRCurrencyName,
+      });
+      console.log(currencyINR._id)
+
+
+    const purposes = await purposs.findOne({
+      purpose : data.purposeName,
+    })
+    console.log(purposes._id)
 
     const response = await axios.get(
-      `https://api.currencyscoop.com/v1/convert?api_key=4b9a3c48ebe3250b32d97a7031359674&from=${currencyData.addcurrency}&to=INR&amount=${data.recievingAmount}`
+      `https://api.currencyscoop.com/v1/convert?api_key=4b9a3c48ebe3250b32d97a7031359674&from=${data.recievingCurrencyName}&to=INR&amount=${data.recievingAmount}`
     );
 
     console.log(response.data.value);
     const ConvertedAmount = response.data.value;
-    const total = response.data.value;
+    const total = response.data.valu
 
     let obj = {
       selectCity: data.selectCity,
@@ -56,12 +71,18 @@ exports.wireTransfer = async (req, res) => {
       transferFromCity: cityfrom.selectcity,
       transferTo: data.transferTo,
       transferToCity: cityTo.selectcity,
-      purpose: data.purpose,
-      purposeName: purposes.purpose,
-      receivingCurrency: req.body.receivingCurrency,
-      recievingCurrencyName: currencyData.addcurrency,
-      INRCurrency: req.body.INRCurrency,
-      INRCurrencyName: currencyINR.addcurrency,
+      // purpose: data.purpose,
+      // purposeName: purposes.purpose,
+      purpose: purposes._id,
+      purposeName: data.purposeName,
+      // receivingCurrency: req.body.receivingCurrency,
+      // recievingCurrencyName: currencyData.addcurrency,
+      receivingCurrency: currencyData._id,
+      recievingCurrencyName: data.recievingCurrencyName,
+      // INRCurrency: req.body.INRCurrency,
+      // INRCurrencyName: currencyINR.addcurrency,
+      INRCurrency: currencyINR._id,
+      INRCurrencyName: data.INRCurrencyName,
       recievingAmount: data.recievingAmount,
       convertedAmount: ConvertedAmount,
     };
@@ -73,6 +94,7 @@ exports.wireTransfer = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.updatepan = async (req, res) => {
   try {

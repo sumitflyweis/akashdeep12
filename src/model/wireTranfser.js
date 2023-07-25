@@ -24,8 +24,7 @@ const wireTransferSchema = mongoose.Schema({
     type: String,
   },
   receivingCurrency: {
-    type: objectId,
-    ref: "currency",
+    type: String
   },
   recievingCurrencyName: {
     type: String,
