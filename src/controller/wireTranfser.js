@@ -405,9 +405,7 @@ exports.updatebifurcation = async (req, res) => {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
-
-
+}
 
 exports.updateDocument = async (req, res) => {
   try {
@@ -440,4 +438,4 @@ exports.updateDocument = async (req, res) => {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+}
