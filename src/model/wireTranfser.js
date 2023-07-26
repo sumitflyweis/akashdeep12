@@ -23,8 +23,11 @@ const wireTransferSchema = mongoose.Schema({
   purposeName: {
     type: String,
   },
+  descPurpose: {
+    type: String,
+  },
   receivingCurrency: {
-    type: String
+    type: String,
   },
   recievingCurrencyName: {
     type: String,
@@ -60,8 +63,8 @@ const wireTransferSchema = mongoose.Schema({
   AadharCard: {
     type: String,
   },
-  ref_id:{
-    type:String
+  ref_id: {
+    type: String,
   },
   aadharStatus: {
     type: String,
@@ -171,10 +174,10 @@ const wireTransferSchema = mongoose.Schema({
     type: String,
   },
   /////////////////////////////////////////
-  exchangeRate : {
+  exchangeRate: {
     type: String,
   },
-  transferAmountInFCY : {
+  transferAmountInFCY: {
     type: String,
   },
   remittenceServiceCharge: {
@@ -201,24 +204,24 @@ const wireTransferSchema = mongoose.Schema({
   /////////////////////////////////////////////
   //DOCUMENT UPLOAD
 
-  documentName:{
-    type:String
+  documentName: {
+    type: String,
   },
-  documentNumber:{
-    type:String
+  documentNumber: {
+    type: String,
   },
-  city:{
-    type:String
+  city: {
+    type: String,
   },
-  purposeOfIssue:{
-    type:String
+  purposeOfIssue: {
+    type: String,
   },
-  dateOfIssue:{
-    type:String
+  dateOfIssue: {
+    type: String,
   },
-  countryOfIssue:{
-    type:String
-  }
-})
+  countryOfIssue: {
+    type: String,
+  },
+});
 const wireModel = mongoose.model("wireTransfer", wireTransferSchema);
 module.exports = wireModel;

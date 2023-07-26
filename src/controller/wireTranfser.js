@@ -59,11 +59,11 @@ exports.wireTransfer = async (req, res) => {
 
     const response = await axios.get(
       `https://api.currencyscoop.com/v1/convert?api_key=4b9a3c48ebe3250b32d97a7031359674&from=${data.recievingCurrencyName}&to=INR&amount=${data.recievingAmount}`
-    );
+    )
 
     console.log(response.data.value);
     const ConvertedAmount = response.data.value;
-    const total = response.data.valu
+    const total = response.data.value
 
     let obj = {
       selectCity: data.selectCity,
@@ -75,6 +75,7 @@ exports.wireTransfer = async (req, res) => {
       // purposeName: purposes.purpose,
       purpose: purposes._id,
       purposeName: data.purposeName,
+      descPurpose:purposes.desc,
       // receivingCurrency: req.body.receivingCurrency,
       // recievingCurrencyName: currencyData.addcurrency,
       receivingCurrency: currencyData._id,
@@ -86,14 +87,14 @@ exports.wireTransfer = async (req, res) => {
       recievingAmount: data.recievingAmount,
       convertedAmount: ConvertedAmount,
     };
-    const wiretransfer = new wireTransferModel(obj);
-    const result = await wiretransfer.save();
-    return res.status(201).json(result);
+    const wiretransfer = new wireTransferModel(obj)
+    const result = await wiretransfer.save()
+    return res.status(201).json(result)
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: error.message });
+    console.log(error)
+    res.status(500).json({ error: error.message })
   }
-};
+}
 
 
 exports.updatepan = async (req, res) => {
